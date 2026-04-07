@@ -1,0 +1,18 @@
+# Data — never commit raw/processed data
+data/
+
+# Models — too large for git
+models/
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+*.egg-info/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
