@@ -1,0 +1,89 @@
+import os
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+PROCESSED_DIR = "data/processed"
+INPUT_FILE = os.path.join(PROCESSED_DIR, "dataset.parquet")
+
+
+def detect_label_column(df: pd.DataFrame) -> str:
+    for candidate in ["label", "Label", "attack", "Attack", "class", "Class"]:
+        if candidate in df.columns:
+            return candidate
+    raise ValueError(f"No label column found. Columns: {list(df.columns)}")
+
+
+def detect_timestamp_column(df: pd.DataFrame):
+    for candidate in ["timestamp", "Timestamp", "time", "Time", "date", "Date"]:
+        if candidate in df.columns:
+            return candidate
+    return None
+
+
+def time_split(df, timestamp_col, train_ratio=0.7, val_ratio=0.15):
+    df = df.copy()
+
+    df[timestamp_col] = pd.to_datetime(df[timestamp_col], errors="coerce")
+    df = df.dropna(subset=[timestamp_col])
+
+    df = df.sort_values(timestamp_col).reset_index(drop=True)
+
+    n = len(df)
+    t1 = int(n * train_ratio)
+    t2 = int(n * (train_ratio + val_ratio))
+
+    return df[:t1], df[t1:t2], df[t2:]
+
+
+def stratified_split(df, label_col):
+    train_df, temp_df = train_test_split(
+        df, test_size=0.3, stratify=df[label_col], random_state=42
+    )
+
+    val_df, test_df = train_test_split(
+        temp_df, test_size=0.5, stratify=temp_df[label_col], random_state=42
+    )
+
+    return train_df, val_df, test_df
+
+
+def save_splits(train_df, val_df, test_df):
+    train_df.to_parquet(os.path.join(PROCESSED_DIR, "train.parquet"), index=False)
+    val_df.to_parquet(os.path.join(PROCESSED_DIR, "val.parquet"), index=False)
+    test_df.to_parquet(os.path.join(PROCESSED_DIR, "test.parquet"), index=False)
+
+    print("\nSaved:")
+    print("train.parquet")
+    print("val.parquet")
+    print("test.parquet")
+
+
+def main():
+    print("Loading dataset...")
+    df = pd.read_parquet(INPUT_FILE)
+
+    print("Shape:", df.shape)
+
+    label_col = detect_label_column(df)
+    timestamp_col = detect_timestamp_column(df)
+
+    if timestamp_col:
+        print(f"Using TIME split ({timestamp_col})")
+        train_df, val_df, test_df = time_split(df, timestamp_col)
+        
+    else:
+        print("Using STRATIFIED split")
+        train_df, val_df, test_df = stratified_split(df, label_col)
+
+    print("\nSplit sizes:")
+    print("Train:", train_df.shape)
+    print("Val:", val_df.shape)
+    print("Test:", test_df.shape)
+
+    save_splits(train_df, val_df, test_df)
+
+    
+
+
+if __name__ == "__main__":
+    main()

@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-RAW_DIR = "data/raw/MERGED_CSV/MERGED_CSV"
+RAW_DIR = "data/raw"
 PROCESSED_DIR = "data/processed"
 ATTACK_SAMPLE = 8000
 BENIGN_SAMPLE = 50000
