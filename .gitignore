@@ -4,6 +4,9 @@ data/
 # Models — too large for git
 models/
 
+# Evaluation outputs (confusion matrices, etc.)
+results/
+
 # Python
 __pycache__/
 *.pyc

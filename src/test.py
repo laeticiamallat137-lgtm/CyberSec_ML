@@ -3,7 +3,9 @@ import os
 
 import joblib
 import numpy as np
+import pandas as pd
 from sklearn.metrics import (
+    ConfusionMatrixDisplay,
     accuracy_score,
     classification_report,
     confusion_matrix,
@@ -20,11 +22,66 @@ X_TEST_FILE = os.path.join(PROCESSED_DIR, "X_test.joblib")
 y_TEST_FILE = os.path.join(PROCESSED_DIR, "y_test.joblib")
 LABEL_ENCODER_FILE = os.path.join(MODELS_DIR, "label_encoder.joblib")
 
+RESULTS_DIR = "results"
+
 MODEL_FILES = {
     "lr": os.path.join(MODELS_DIR, "logistic_regression.joblib"),
     "rf": os.path.join(MODELS_DIR, "random_forest.joblib"),
     "hgb": os.path.join(MODELS_DIR, "gradient_boosting.joblib"),
 }
+
+
+def show_confusion_matrix(cm, le, model_key: str, *, print_to_console: bool) -> None:
+    """Rows = true class, columns = predicted class (counts of test samples)."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    labels = list(le.classes_)
+    n = len(labels)
+    df = pd.DataFrame(cm, index=labels, columns=labels)
+    df.index.name = "true_label"
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
+    csv_path = os.path.join(RESULTS_DIR, f"confusion_matrix_{model_key}_test.csv")
+    df.to_csv(csv_path)
+    print(f"\nConfusion matrix CSV: {os.path.abspath(csv_path)}")
+
+    png_path = os.path.join(RESULTS_DIR, f"confusion_matrix_{model_key}_test.png")
+    fig_w = max(14.0, n * 0.42)
+    fig_h = max(12.0, n * 0.38)
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+    plot_kw = dict(
+        ax=ax,
+        cmap="Blues",
+        xticks_rotation=90,
+        colorbar=True,
+        include_values=n <= 20,
+    )
+    if n <= 20:
+        plot_kw["values_format"] = "d"
+    disp.plot(**plot_kw)
+    ax.tick_params(axis="both", labelsize=6 if n > 20 else 8)
+    plt.title(f"Confusion matrix (test) — model={model_key}", fontsize=11)
+    plt.tight_layout()
+    plt.savefig(png_path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"Confusion matrix PNG: {os.path.abspath(png_path)}")
+    print("(Rows = true label, columns = predicted; use PNG for reports.)")
+
+    if print_to_console:
+        print("\n--- Confusion matrix (same data as CSV) ---")
+        with pd.option_context(
+            "display.max_columns",
+            None,
+            "display.max_rows",
+            None,
+            "display.width",
+            1000,
+        ):
+            print(df.to_string())
 
 
 def load_sklearn_model(key: str):
@@ -53,6 +110,11 @@ def main():
         choices=["lr", "rf", "hgb", "mlp"],
         default="lr",
         help="Which trained model to evaluate",
+    )
+    parser.add_argument(
+        "--no-print-cm",
+        action="store_true",
+        help="Only save confusion matrix CSV; do not print the full table to the terminal",
     )
     args = parser.parse_args()
 
@@ -113,6 +175,9 @@ def main():
 
     cm = confusion_matrix(y_test, y_pred)
     print("\nConfusion matrix shape:", cm.shape)
+    show_confusion_matrix(
+        cm, le, args.model, print_to_console=not args.no_print_cm
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,59 @@
+{
+  "project_title": "Streaming IoT Intrusion Detection",
+  "subtitle": "Multiclass classification on sampled CICIoT2023-style network flows — baseline vs tree ensembles vs neural network.",
+  "course_line": "Cybersecurity / ML project — model comparison / PDF-style metrics",
+  "dataset": {
+    "name": "CICIoT2023 (merged CSVs, per-class sampling in ingest)",
+    "reference_url": "https://www.unb.ca/cic/datasets/iotdataset-2023.html",
+    "n_train": 1342400,
+    "n_val": 287657,
+    "n_test": 287658,
+    "n_features": 39,
+    "n_classes": 34
+  },
+  "split_note": "Stratified train/validation/test (70% / 15% / 15%). Same preprocessing (StandardScaler + LabelEncoder) for all models.",
+  "models": [
+    {
+      "id": "lr",
+      "name": "Logistic Regression",
+      "role": "Baseline (multinomial, class-balanced)",
+      "val_macro_f1": 0.5119,
+      "val_weighted_f1": 0.6917,
+      "val_benign_fpr": 0.5725,
+      "val_accuracy": 0.6819
+    },
+    {
+      "id": "rf",
+      "name": "Random Forest",
+      "role": "Option A (200 trees, max_depth=20)",
+      "val_macro_f1": 0.5919,
+      "val_weighted_f1": 0.7755,
+      "val_benign_fpr": 0.272,
+      "val_accuracy": 0.7743
+    },
+    {
+      "id": "hgb",
+      "name": "HistGradientBoosting",
+      "role": "Option B (max_iter=300, recommended sklearn GB)",
+      "val_macro_f1": 0.5816,
+      "val_weighted_f1": 0.7695,
+      "val_benign_fpr": 0.3524,
+      "val_accuracy": 0.7571
+    },
+    {
+      "id": "mlp",
+      "name": "MLP (PyTorch)",
+      "role": "Small net — dropout + weighted CE + early stopping",
+      "val_macro_f1": 0.5143,
+      "val_weighted_f1": 0.6768,
+      "val_benign_fpr": 0.5077,
+      "val_accuracy": 0.6729
+    }
+  ],
+  "metric_help": {
+    "macro_f1": "Unweighted mean of class F1 scores — sensitive to rare classes.",
+    "weighted_f1": "F1 weighted by support — dominated by frequent classes.",
+    "benign_fpr": "Among true BENIGN samples, fraction predicted as any attack (lower is better for false alarms).",
+    "accuracy": "Overall correct predictions (can be misleading under imbalance)."
+  }
+}
