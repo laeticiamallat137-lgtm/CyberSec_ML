@@ -7,15 +7,30 @@ PROCESSED_DIR = "data/processed"
 ATTACK_SAMPLE = 8000
 BENIGN_SAMPLE = 50000
 
+
+def find_csv_files(data_dir: str) -> list[str]:
+    csv_files = []
+    for root, _, files in os.walk(data_dir):
+        for name in files:
+            if name.lower().endswith(".csv"):
+                csv_files.append(os.path.join(root, name))
+    return sorted(csv_files)
+
 def load_and_sample(data_dir: str = RAW_DIR) -> pd.DataFrame:
     print("Looking in:", os.path.abspath(data_dir))
     print("Files found:", os.listdir(data_dir))
     frames = []
-    for f in sorted(os.listdir(data_dir)):
-        if not f.endswith(".csv"):
-            continue
-        print(f"Loading {f}...")
-        df = pd.read_csv(os.path.join(data_dir, f), low_memory=False)
+    csv_files = find_csv_files(data_dir)
+    if not csv_files:
+        raise FileNotFoundError(
+            f"No CSV files found under {os.path.abspath(data_dir)}. "
+            "Place raw CSVs there or inside its subfolders."
+        )
+
+    print(f"CSV files found recursively: {len(csv_files)}")
+    for csv_path in csv_files:
+        print(f"Loading {csv_path}...")
+        df = pd.read_csv(csv_path, low_memory=False)
         
         # Detect label column (adjust if yours is named differently)
         label_col = detect_label_column(df)
