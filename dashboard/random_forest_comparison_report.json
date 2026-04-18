@@ -1,0 +1,131 @@
+{
+  "model": "RandomForest",
+  "classes": [
+    "BACKDOOR_MALWARE",
+    "BENIGN",
+    "BROWSERHIJACKING",
+    "COMMANDINJECTION",
+    "DDOS-ACK_FRAGMENTATION",
+    "DDOS-HTTP_FLOOD",
+    "DDOS-ICMP_FLOOD",
+    "DDOS-ICMP_FRAGMENTATION",
+    "DDOS-PSHACK_FLOOD",
+    "DDOS-RSTFINFLOOD",
+    "DDOS-SLOWLORIS",
+    "DDOS-SYNONYMOUSIP_FLOOD",
+    "DDOS-SYN_FLOOD",
+    "DDOS-TCP_FLOOD",
+    "DDOS-UDP_FLOOD",
+    "DDOS-UDP_FRAGMENTATION",
+    "DICTIONARYBRUTEFORCE",
+    "DNS_SPOOFING",
+    "DOS-HTTP_FLOOD",
+    "DOS-SYN_FLOOD",
+    "DOS-TCP_FLOOD",
+    "DOS-UDP_FLOOD",
+    "MIRAI-GREETH_FLOOD",
+    "MIRAI-GREIP_FLOOD",
+    "MIRAI-UDPPLAIN",
+    "MITM-ARPSPOOFING",
+    "RECON-HOSTDISCOVERY",
+    "RECON-OSSCAN",
+    "RECON-PINGSWEEP",
+    "RECON-PORTSCAN",
+    "SQLINJECTION",
+    "UPLOADING_ATTACK",
+    "VULNERABILITYSCAN",
+    "XSS"
+  ],
+  "baseline_config": {
+    "n_estimators": 120,
+    "max_depth": 14,
+    "class_weight": "balanced",
+    "n_jobs": 1,
+    "random_state": 42
+  },
+  "improved_config": {
+    "n_estimators": 200,
+    "max_depth": 18,
+    "min_samples_split": 8,
+    "min_samples_leaf": 4,
+    "max_features": "sqrt",
+    "bootstrap": true,
+    "oob_score": true,
+    "class_weight": "balanced_subsample",
+    "n_jobs": 1,
+    "random_state": 42
+  },
+  "baseline": {
+    "fit_time_seconds": 304.27,
+    "validation": {
+      "accuracy": 0.7431002895809941,
+      "macro_precision": 0.5930614722845898,
+      "macro_recall": 0.6253613449296851,
+      "macro_f1": 0.568682440888713,
+      "weighted_precision": 0.7961403079629998,
+      "weighted_recall": 0.7431002895809941,
+      "weighted_f1": 0.7506363990110463,
+      "benign_fpr": 0.012682137075013492
+    },
+    "test": {
+      "accuracy": 0.7445264863136085,
+      "macro_precision": 0.5956084052525122,
+      "macro_recall": 0.6250267872565229,
+      "macro_f1": 0.5707480237072571,
+      "weighted_precision": 0.7977203527013514,
+      "weighted_recall": 0.7445264863136085,
+      "weighted_f1": 0.7524076401230068,
+      "benign_fpr": 0.012216725651604326
+    }
+  },
+  "improved": {
+    "fit_time_seconds": 687.11,
+    "validation": {
+      "accuracy": 0.7592306114573955,
+      "macro_precision": 0.5908576304148904,
+      "macro_recall": 0.6297714963077246,
+      "macro_f1": 0.5792995221645807,
+      "weighted_precision": 0.7980171168946724,
+      "weighted_recall": 0.7592306114573955,
+      "weighted_f1": 0.763443472384621,
+      "benign_fpr": 0.01256872912707165
+    },
+    "test": {
+      "accuracy": 0.7608270932843864,
+      "macro_precision": 0.5935838346072791,
+      "macro_recall": 0.6285755307881872,
+      "macro_f1": 0.5817818133723971,
+      "weighted_precision": 0.7995181029613799,
+      "weighted_recall": 0.7608270932843864,
+      "weighted_f1": 0.7652853288580468,
+      "benign_fpr": 0.012083765129147684
+    },
+    "oob_score": 0.759684147794994
+  },
+  "validation_delta_new_minus_old": {
+    "accuracy": 0.0161303218764014,
+    "macro_precision": -0.0022038418696994633,
+    "macro_recall": 0.004410151378039462,
+    "macro_f1": 0.01061708127586769,
+    "weighted_precision": 0.0018768089316725245,
+    "weighted_recall": 0.0161303218764014,
+    "weighted_f1": 0.012807073373574673,
+    "benign_fpr": -0.00011340794794184074
+  },
+  "test_delta_new_minus_old": {
+    "accuracy": 0.016300606970777842,
+    "macro_precision": -0.0020245706452330925,
+    "macro_recall": 0.0035487435316642335,
+    "macro_f1": 0.011033789665140015,
+    "weighted_precision": 0.0017977502600284856,
+    "weighted_recall": 0.016300606970777842,
+    "weighted_f1": 0.012877688735040027,
+    "benign_fpr": -0.00013296052245664186
+  },
+  "saved_artifacts": {
+    "baseline_model": "models\\random_forest_baseline.joblib",
+    "improved_model": "models\\random_forest_improved.joblib",
+    "feature_importance_csv": "dashboard\\random_forest_feature_importance.csv",
+    "comparison_report": "dashboard\\random_forest_comparison_report.json"
+  }
+}

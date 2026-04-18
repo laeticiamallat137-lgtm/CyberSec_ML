@@ -1,0 +1,135 @@
+{
+  "model": "RandomForest",
+  "selection_rule": "Best validation macro_f1, then weighted_f1, then lower benign_fpr, then accuracy",
+  "classes": [
+    "BACKDOOR_MALWARE",
+    "BENIGN",
+    "BROWSERHIJACKING",
+    "COMMANDINJECTION",
+    "DDOS-ACK_FRAGMENTATION",
+    "DDOS-HTTP_FLOOD",
+    "DDOS-ICMP_FLOOD",
+    "DDOS-ICMP_FRAGMENTATION",
+    "DDOS-PSHACK_FLOOD",
+    "DDOS-RSTFINFLOOD",
+    "DDOS-SLOWLORIS",
+    "DDOS-SYNONYMOUSIP_FLOOD",
+    "DDOS-SYN_FLOOD",
+    "DDOS-TCP_FLOOD",
+    "DDOS-UDP_FLOOD",
+    "DDOS-UDP_FRAGMENTATION",
+    "DICTIONARYBRUTEFORCE",
+    "DNS_SPOOFING",
+    "DOS-HTTP_FLOOD",
+    "DOS-SYN_FLOOD",
+    "DOS-TCP_FLOOD",
+    "DOS-UDP_FLOOD",
+    "MIRAI-GREETH_FLOOD",
+    "MIRAI-GREIP_FLOOD",
+    "MIRAI-UDPPLAIN",
+    "MITM-ARPSPOOFING",
+    "RECON-HOSTDISCOVERY",
+    "RECON-OSSCAN",
+    "RECON-PINGSWEEP",
+    "RECON-PORTSCAN",
+    "SQLINJECTION",
+    "UPLOADING_ATTACK",
+    "VULNERABILITYSCAN",
+    "XSS"
+  ],
+  "baseline_config": {
+    "n_estimators": 120,
+    "max_depth": 14,
+    "class_weight": "balanced",
+    "n_jobs": 1,
+    "random_state": 42
+  },
+  "baseline": {
+    "fit_time_seconds": 310.97,
+    "validation": {
+      "accuracy": 0.7431002895809941,
+      "macro_precision": 0.5930614722845898,
+      "macro_recall": 0.6253613449296851,
+      "macro_f1": 0.568682440888713,
+      "weighted_precision": 0.7961403079629998,
+      "weighted_recall": 0.7431002895809941,
+      "weighted_f1": 0.7506363990110463,
+      "benign_fpr": 0.012682137075013492
+    },
+    "test": {
+      "accuracy": 0.7445264863136085,
+      "macro_precision": 0.5956084052525122,
+      "macro_recall": 0.6250267872565229,
+      "macro_f1": 0.5707480237072571,
+      "weighted_precision": 0.7977203527013514,
+      "weighted_recall": 0.7445264863136085,
+      "weighted_f1": 0.7524076401230068,
+      "benign_fpr": 0.012216725651604326
+    }
+  },
+  "best_improved_config": {
+    "name": "rf_candidate_4",
+    "n_estimators": 300,
+    "max_depth": 22,
+    "min_samples_split": 12,
+    "min_samples_leaf": 4,
+    "max_features": "sqrt",
+    "bootstrap": true,
+    "oob_score": true,
+    "class_weight": "balanced_subsample",
+    "max_samples": 0.7,
+    "n_jobs": 1,
+    "random_state": 42
+  },
+  "best_improved": {
+    "fit_time_seconds": 871.44,
+    "validation": {
+      "accuracy": 0.7778743434020379,
+      "macro_precision": 0.5964959101507379,
+      "macro_recall": 0.6272865618144127,
+      "macro_f1": 0.5964128605067718,
+      "weighted_precision": 0.7925386118689185,
+      "weighted_recall": 0.7778743434020379,
+      "weighted_f1": 0.7754845565898649,
+      "benign_fpr": 0.014817334991435744
+    },
+    "test": {
+      "accuracy": 0.7796480542866877,
+      "macro_precision": 0.5985942882423521,
+      "macro_recall": 0.628384847989403,
+      "macro_f1": 0.5987291384659889,
+      "weighted_precision": 0.794045929661583,
+      "weighted_recall": 0.7796480542866877,
+      "weighted_f1": 0.7773877158611667,
+      "benign_fpr": 0.01439493185773224
+    },
+    "oob_score": 0.7784594755661501
+  },
+  "validation_delta_new_minus_old": {
+    "accuracy": 0.034774053821043815,
+    "macro_precision": 0.0034344378661480546,
+    "macro_recall": 0.0019252168847275763,
+    "macro_f1": 0.027730419618058777,
+    "weighted_precision": -0.0036016960940813414,
+    "weighted_recall": 0.034774053821043815,
+    "weighted_f1": 0.02484815757881864,
+    "benign_fpr": 0.0021351979164222525
+  },
+  "test_delta_new_minus_old": {
+    "accuracy": 0.03512156797307919,
+    "macro_precision": 0.0029858829898398165,
+    "macro_recall": 0.0033580607328800305,
+    "macro_f1": 0.027981114758731773,
+    "weighted_precision": -0.003674423039768393,
+    "weighted_recall": 0.03512156797307919,
+    "weighted_f1": 0.024980075738159968,
+    "benign_fpr": 0.0021782062061279153
+  },
+  "saved_artifacts": {
+    "baseline_model": "models\\random_forest_baseline.joblib",
+    "best_model": "models\\random_forest_best.joblib",
+    "search_results_csv": "dashboard\\random_forest_search_results.csv",
+    "feature_importance_csv": "dashboard\\random_forest_best_feature_importance.csv",
+    "comparison_report": "dashboard\\random_forest_search_report.json"
+  }
+}
