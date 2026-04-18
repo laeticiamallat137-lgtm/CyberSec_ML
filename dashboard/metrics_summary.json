@@ -34,11 +34,11 @@
     {
       "id": "hgb",
       "name": "HistGradientBoosting",
-      "role": "Option B (max_iter=300, recommended sklearn GB)",
-      "val_macro_f1": 0.5816,
-      "val_weighted_f1": 0.7695,
-      "val_benign_fpr": 0.3524,
-      "val_accuracy": 0.7571
+      "role": "Option B tuned (max_iter=600, depth=12, early stopping)",
+      "val_macro_f1": 0.5875,
+      "val_weighted_f1": 0.7743,
+      "val_benign_fpr": 0.3269,
+      "val_accuracy": 0.765
     },
     {
       "id": "mlp",
