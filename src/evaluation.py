@@ -26,6 +26,16 @@ def benign_fpr(y_true: np.ndarray, y_pred: np.ndarray, benign_idx: int | None) -
     return float(np.mean(y_pred[mask] != benign_idx))
 
 
+def benign_recall(y_true: np.ndarray, y_pred: np.ndarray, benign_idx: int | None) -> float:
+    """Recall on true-BENIGN rows: fraction of true BENIGN predicted as BENIGN."""
+    if benign_idx is None:
+        return float("nan")
+    mask = y_true == benign_idx
+    if not np.any(mask):
+        return float("nan")
+    return float(np.mean(y_pred[mask] == benign_idx))
+
+
 def security_metrics_dict(
     y_true: np.ndarray, y_pred: np.ndarray, le, zero_division: int = 0
 ) -> dict:
@@ -38,15 +48,18 @@ def security_metrics_dict(
             f1_score(y_true, y_pred, average="weighted", zero_division=zero_division)
         ),
         "benign_fpr": benign_fpr(y_true, y_pred, benign_idx),
+        "benign_recall": benign_recall(y_true, y_pred, benign_idx),
     }
 
 
 def print_metrics_block(name: str, y_true: np.ndarray, y_pred: np.ndarray, le) -> None:
     print(f"\n--- {name} (validation) ---")
     metrics = security_metrics_dict(y_true, y_pred, le)
+    br = metrics.get("benign_recall", float("nan"))
     print(
         f"macro-F1: {metrics['macro_f1']:.4f} | "
         f"weighted-F1: {metrics['weighted_f1']:.4f} | "
+        f"benign-recall: {br:.4f} | "
         f"benign-FPR: {metrics['benign_fpr']:.4f}"
     )
     print("\nClassification report:")

@@ -93,13 +93,25 @@ def load_sklearn_model(key: str):
     return joblib.load(path)
 
 
-def load_model(key: str):
+def load_model(key: str, *, mlp_artifact: str = "mlp"):
     if key == "mlp":
-        if not os.path.isfile(os.path.join(MODELS_DIR, "mlp.pt")):
+        base = mlp_artifact.strip() or "mlp"
+        pt = os.path.join(MODELS_DIR, f"{base}.pt")
+        meta = os.path.join(MODELS_DIR, f"{base}_meta.joblib")
+        if not os.path.isfile(pt) or not os.path.isfile(meta):
             raise FileNotFoundError(
-                "MLP weights not found. Train with: python src/train.py --model mlp"
+                f"MLP weights or meta missing ({pt}, {meta}). "
+                "Train with: python src/train.py --model mlp --mlp-artifact NAME ..."
             )
-        return load_mlp_wrapper()
+        return load_mlp_wrapper(weights_path=pt, meta_path=meta)
+    if key == "mlp_baseline":
+        pt = os.path.join(MODELS_DIR, "mlp_baseline.pt")
+        meta = os.path.join(MODELS_DIR, "mlp_baseline_meta.joblib")
+        if not os.path.isfile(pt) or not os.path.isfile(meta):
+            raise FileNotFoundError(
+                f"Missing {pt} or {meta} (baseline MLP artifacts)."
+            )
+        return load_mlp_wrapper(weights_path=pt, meta_path=meta)
     return load_sklearn_model(key)
 
 
@@ -107,7 +119,7 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate saved model on test set.")
     parser.add_argument(
         "--model",
-        choices=["lr", "rf", "hgb", "mlp"],
+        choices=["lr", "rf", "hgb", "mlp", "mlp_baseline"],
         default="lr",
         help="Which trained model to evaluate",
     )
@@ -116,15 +128,29 @@ def main():
         action="store_true",
         help="Only save confusion matrix CSV; do not print the full table to the terminal",
     )
+    parser.add_argument(
+        "--mlp-artifact",
+        default="mlp",
+        metavar="NAME",
+        help=(
+            "For --model mlp: load models/<NAME>.pt and models/<NAME>_meta.joblib "
+            "(same basename as --mlp-artifact when training)."
+        ),
+    )
     args = parser.parse_args()
 
+    result_tag = args.mlp_artifact if args.model == "mlp" else args.model
+
     print("Loading saved model and test data...")
-    model = load_model(args.model)
+    model = load_model(args.model, mlp_artifact=args.mlp_artifact)
     le = joblib.load(LABEL_ENCODER_FILE)
     X_test = joblib.load(X_TEST_FILE)
     y_test = joblib.load(y_TEST_FILE)
 
-    print("Model:", args.model)
+    if args.model == "mlp":
+        print("Model:", args.model, f"(artifact={args.mlp_artifact})")
+    else:
+        print("Model:", args.model)
     print("X_test shape:", X_test.shape)
     print("y_test shape:", y_test.shape)
 
@@ -135,6 +161,8 @@ def main():
     sm = security_metrics_dict(y_test, y_pred, le)
     print(f"macro-F1: {sm['macro_f1']:.4f}")
     print(f"weighted-F1: {sm['weighted_f1']:.4f}")
+    br = sm.get("benign_recall", float("nan"))
+    print(f"benign-recall: {br:.4f}")
     print(f"benign-FPR: {sm['benign_fpr']:.4f}")
 
     print("\nOverall metrics:")
@@ -176,7 +204,7 @@ def main():
     cm = confusion_matrix(y_test, y_pred)
     print("\nConfusion matrix shape:", cm.shape)
     show_confusion_matrix(
-        cm, le, args.model, print_to_console=not args.no_print_cm
+        cm, le, result_tag, print_to_console=not args.no_print_cm
     )
 
 

@@ -34,6 +34,7 @@ MODEL_OPTIONS = {
     "Random Forest": "rf",
     "HistGradientBoosting (default in API)": "hgb",
     "MLP (PyTorch)": "mlp",
+    "MLP baseline (PyTorch)": "mlp_baseline",
 }
 
 
@@ -82,7 +83,7 @@ model_label = st.selectbox(
     "Model used for predictions",
     options=list(MODEL_OPTIONS.keys()),
     index=2,
-    help="Sent as JSON field `model` to `/predict` (lr, rf, hgb, mlp).",
+    help="Sent as JSON field `model` to `/predict` (lr, rf, hgb, mlp, mlp_baseline).",
 )
 model_key = MODEL_OPTIONS[model_label]
 

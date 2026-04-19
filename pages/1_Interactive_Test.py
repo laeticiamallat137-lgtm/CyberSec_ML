@@ -42,6 +42,7 @@ MODEL_FILES = {
     "Random Forest": "rf",
     "HistGradientBoosting": "hgb",
     "MLP (PyTorch)": "mlp",
+    "MLP baseline (PyTorch)": "mlp_baseline",
 }
 SKLEARN_PATHS = {
     "lr": MODELS / "logistic_regression.joblib",
@@ -72,17 +73,21 @@ def load_sklearn_model(key: str):
 
 
 @st.cache_resource
-def load_mlp_model():
-    pt = MODELS / "mlp.pt"
-    meta = MODELS / "mlp_meta.joblib"
+def load_mlp_model(which: str):
+    if which == "mlp":
+        pt, meta = MODELS / "mlp.pt", MODELS / "mlp_meta.joblib"
+    elif which == "mlp_baseline":
+        pt, meta = MODELS / "mlp_baseline.pt", MODELS / "mlp_baseline_meta.joblib"
+    else:
+        return None
     if not pt.is_file() or not meta.is_file():
         return None
-    return load_mlp_wrapper()
+    return load_mlp_wrapper(weights_path=str(pt), meta_path=str(meta))
 
 
 def get_model(key: str):
-    if key == "mlp":
-        return load_mlp_model()
+    if key in ("mlp", "mlp_baseline"):
+        return load_mlp_model(key)
     return load_sklearn_model(key)
 
 
