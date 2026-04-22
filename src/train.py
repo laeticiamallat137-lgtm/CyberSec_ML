@@ -229,7 +229,7 @@ def main():
         metavar="EXP",
         help=(
             "Preset sequence: exp1=sqrt weights; exp2=exp1+lr5e-4; "
-            "exp3=exp2+dropout0.2; exp4=exp3+larger hidden dims."
+            "exp3=exp1+dropout0.2; exp4=exp2+dropout0.2+larger hidden dims."
         ),
     )
     parser.add_argument(
@@ -279,6 +279,12 @@ def main():
     print("X_val shape:", X_val.shape)
     print("y_val shape:", y_val.shape)
 
+    mlp_artifact = args.mlp_artifact
+    if args.mlp_experiment and args.mlp_artifact == "mlp":
+        # Avoid accidental overwrite of the default mlp artifacts for experiments.
+        mlp_artifact = f"mlp_{args.mlp_experiment}"
+        print(f"Auto artifact for {args.mlp_experiment}: {mlp_artifact}")
+
     mlp_class_weight = args.mlp_class_weight
     mlp_lr = args.mlp_lr
     mlp_dropout = args.mlp_dropout
@@ -291,7 +297,6 @@ def main():
         mlp_lr = 5e-4 if mlp_lr is None else mlp_lr
     elif args.mlp_experiment == "exp3":
         mlp_class_weight = "balanced_sqrt"
-        mlp_lr = 5e-4 if mlp_lr is None else mlp_lr
         mlp_dropout = 0.2 if mlp_dropout is None else mlp_dropout
     elif args.mlp_experiment == "exp4":
         mlp_class_weight = "balanced_sqrt"
@@ -301,7 +306,7 @@ def main():
             mlp_hidden_dims = (256, 128, 128)
 
     mlp_kw = dict(
-        mlp_artifact=args.mlp_artifact,
+        mlp_artifact=mlp_artifact,
         mlp_class_weight=mlp_class_weight,
         mlp_selection=args.mlp_selection,
         mlp_lr=mlp_lr,
