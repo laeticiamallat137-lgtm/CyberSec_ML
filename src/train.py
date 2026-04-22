@@ -113,8 +113,11 @@ def train_mlp_pipeline(
     mlp_class_weight: str = "balanced",
     mlp_selection: str = "val_loss",
     mlp_lr: float | None = None,
+    mlp_dropout: float | None = None,
+    mlp_hidden_dims: tuple | None = None,
     mlp_min_benign_recall: float | None = None,
     mlp_max_benign_fpr: float | None = None,
+    mlp_min_weighted_f1: float | None = None,
 ):
     print("\nTraining MLP (PyTorch)...")
     print(
@@ -122,6 +125,11 @@ def train_mlp_pipeline(
         f"selection={mlp_selection!r}"
     )
     lr = 1e-3 if mlp_lr is None else mlp_lr
+    dropout = 0.3 if mlp_dropout is None else mlp_dropout
+    hidden_dims = (256, 128, 64) if mlp_hidden_dims is None else tuple(mlp_hidden_dims)
+    print(
+        f"  lr={lr}  dropout={dropout}  hidden_dims={hidden_dims}"
+    )
     wrapper = train_and_save_mlp(
         X_train,
         y_train,
@@ -129,11 +137,14 @@ def train_mlp_pipeline(
         y_val,
         list(le.classes_),
         lr=lr,
+        dropout=dropout,
+        hidden_dims=hidden_dims,
         artifact_basename=mlp_artifact,
         class_weight_mode=mlp_class_weight,
         selection_metric=mlp_selection,
         min_benign_recall=mlp_min_benign_recall,
         max_benign_fpr=mlp_max_benign_fpr,
+        min_weighted_f1=mlp_min_weighted_f1,
     )
     y_pred = wrapper.predict(X_val)
     print_metrics_block("MLP", y_val, y_pred, le)
@@ -212,6 +223,31 @@ def main():
         help="Adam learning rate (default 1e-3). Try 5e-4 as a later experiment.",
     )
     parser.add_argument(
+        "--mlp-experiment",
+        choices=["exp1", "exp2", "exp3", "exp4"],
+        default=None,
+        metavar="EXP",
+        help=(
+            "Preset sequence: exp1=sqrt weights; exp2=exp1+lr5e-4; "
+            "exp3=exp2+dropout0.2; exp4=exp3+larger hidden dims."
+        ),
+    )
+    parser.add_argument(
+        "--mlp-dropout",
+        type=float,
+        default=None,
+        metavar="FLOAT",
+        help="MLP dropout (default 0.3).",
+    )
+    parser.add_argument(
+        "--mlp-hidden-dims",
+        type=int,
+        nargs="+",
+        default=None,
+        metavar="H",
+        help="Hidden layer widths, e.g. --mlp-hidden-dims 256 128 128",
+    )
+    parser.add_argument(
         "--mlp-min-benign-recall",
         type=float,
         default=None,
@@ -225,6 +261,13 @@ def main():
         metavar="FLOAT",
         help="With --mlp-selection macro_f1: only epochs with benign FPR <= this can be best.",
     )
+    parser.add_argument(
+        "--mlp-min-weighted-f1",
+        type=float,
+        default=None,
+        metavar="FLOAT",
+        help="With --mlp-selection macro_f1: only epochs with weighted F1 >= this can be best.",
+    )
     args = parser.parse_args()
     mode = "all" if args.model == "compare" else args.model
     sk_verbose = args.verbose
@@ -236,13 +279,37 @@ def main():
     print("X_val shape:", X_val.shape)
     print("y_val shape:", y_val.shape)
 
+    mlp_class_weight = args.mlp_class_weight
+    mlp_lr = args.mlp_lr
+    mlp_dropout = args.mlp_dropout
+    mlp_hidden_dims = tuple(args.mlp_hidden_dims) if args.mlp_hidden_dims else None
+
+    if args.mlp_experiment == "exp1":
+        mlp_class_weight = "balanced_sqrt"
+    elif args.mlp_experiment == "exp2":
+        mlp_class_weight = "balanced_sqrt"
+        mlp_lr = 5e-4 if mlp_lr is None else mlp_lr
+    elif args.mlp_experiment == "exp3":
+        mlp_class_weight = "balanced_sqrt"
+        mlp_lr = 5e-4 if mlp_lr is None else mlp_lr
+        mlp_dropout = 0.2 if mlp_dropout is None else mlp_dropout
+    elif args.mlp_experiment == "exp4":
+        mlp_class_weight = "balanced_sqrt"
+        mlp_lr = 5e-4 if mlp_lr is None else mlp_lr
+        mlp_dropout = 0.2 if mlp_dropout is None else mlp_dropout
+        if mlp_hidden_dims is None:
+            mlp_hidden_dims = (256, 128, 128)
+
     mlp_kw = dict(
         mlp_artifact=args.mlp_artifact,
-        mlp_class_weight=args.mlp_class_weight,
+        mlp_class_weight=mlp_class_weight,
         mlp_selection=args.mlp_selection,
-        mlp_lr=args.mlp_lr,
+        mlp_lr=mlp_lr,
+        mlp_dropout=mlp_dropout,
+        mlp_hidden_dims=mlp_hidden_dims,
         mlp_min_benign_recall=args.mlp_min_benign_recall,
         mlp_max_benign_fpr=args.mlp_max_benign_fpr,
+        mlp_min_weighted_f1=args.mlp_min_weighted_f1,
     )
 
     if mode == "all":

@@ -129,6 +129,7 @@ def train_and_save_mlp(
     selection_metric: str = "val_loss",
     min_benign_recall: float | None = None,
     max_benign_fpr: float | None = None,
+    min_weighted_f1: float | None = None,
 ) -> MLPClassifierWrapper:
     """
     Train SmallMLP and save weights under models/{artifact_basename}.pt
@@ -140,8 +141,8 @@ def train_and_save_mlp(
       - "none" — uniform class weights (1.0 each)
 
     selection_metric: "val_loss" (minimize) or "macro_f1" (maximize).
-    For macro_f1, optional min_benign_recall / max_benign_fpr gate which epochs
-    can become the best checkpoint.
+    For macro_f1, optional min_benign_recall / max_benign_fpr / min_weighted_f1
+    gate which epochs can become the best checkpoint.
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -186,6 +187,10 @@ def train_and_save_mlp(
         if max_benign_fpr is not None:
             bf = m["benign_fpr"]
             if not np.isnan(bf) and bf > max_benign_fpr:
+                return False
+        if min_weighted_f1 is not None:
+            wf1 = m["weighted_f1"]
+            if not np.isnan(wf1) and wf1 < min_weighted_f1:
                 return False
         return True
 
