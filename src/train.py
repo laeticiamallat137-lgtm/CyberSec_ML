@@ -229,7 +229,7 @@ def main():
         metavar="EXP",
         help=(
             "Preset sequence: exp1=sqrt weights; exp2=exp1+lr5e-4; "
-            "exp3=exp1+dropout0.2; exp4=exp2+dropout0.2+larger hidden dims."
+            "exp3=exp1+dropout0.2; exp4=exp3+hidden_dims(512,256,128)."
         ),
     )
     parser.add_argument(
@@ -300,10 +300,9 @@ def main():
         mlp_dropout = 0.2 if mlp_dropout is None else mlp_dropout
     elif args.mlp_experiment == "exp4":
         mlp_class_weight = "balanced_sqrt"
-        mlp_lr = 5e-4 if mlp_lr is None else mlp_lr
         mlp_dropout = 0.2 if mlp_dropout is None else mlp_dropout
         if mlp_hidden_dims is None:
-            mlp_hidden_dims = (256, 128, 128)
+            mlp_hidden_dims = (512, 256, 128)
 
     mlp_kw = dict(
         mlp_artifact=mlp_artifact,
