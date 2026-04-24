@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+.git/
+.gitignore
+.vscode/
+.idea/
+.env
+.venv/
+venv/
+env/
+*.log
+
+# notebooks and reports, unless needed by app
+*.ipynb
+*.pdf
+*.docx
+*.pptx
+
+# training outputs
+runs/
+outputs/
+checkpoints/
+wandb/
+mlruns/
+
+# OS files
+.DS_Store
+Thumbs.db
