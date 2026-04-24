@@ -24,30 +24,31 @@
     },
     {
       "id": "rf",
-      "name": "Random Forest",
+      "name": "Random Forest (Best)",
       "role": "Option A (200 trees, max_depth=20)",
-      "val_macro_f1": 0.5919,
-      "val_weighted_f1": 0.7755,
-      "val_benign_fpr": 0.272,
-      "val_accuracy": 0.7743
+      "val_macro_f1": 0.5938,
+      "val_weighted_f1": 0.7775,
+      "val_benign_fpr": 0.2699,
+      "val_accuracy": 0.7762
     },
     {
       "id": "hgb",
       "name": "HistGradientBoosting",
       "role": "Option B tuned (max_iter=600, depth=12, early stopping)",
-      "val_macro_f1": 0.5875,
+      "val_macro_f1": 0.5892,
       "val_weighted_f1": 0.7743,
-      "val_benign_fpr": 0.3269,
+      "val_benign_fpr": 0.3297,
       "val_accuracy": 0.765
     },
     {
       "id": "mlp",
-      "name": "MLP (PyTorch)",
+      "name": "MLP (Exp4)",
+      "cm_id": "mlp_exp4",
       "role": "Small net — dropout + weighted CE + early stopping",
-      "val_macro_f1": 0.5143,
-      "val_weighted_f1": 0.6768,
-      "val_benign_fpr": 0.5077,
-      "val_accuracy": 0.6729
+      "val_macro_f1": 0.6078,
+      "val_weighted_f1": 0.775,
+      "val_benign_fpr": 0.1621,
+      "val_accuracy": 0.7828
     }
   ],
   "metric_help": {

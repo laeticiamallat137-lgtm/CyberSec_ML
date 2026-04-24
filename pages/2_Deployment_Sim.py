@@ -31,10 +31,9 @@ DEFAULT_API = "http://127.0.0.1:8000"
 
 MODEL_OPTIONS = {
     "Logistic Regression": "lr",
-    "Random Forest": "rf",
+    "Random Forest (Best)": "rf",
     "HistGradientBoosting (default in API)": "hgb",
-    "MLP (PyTorch)": "mlp",
-    "MLP baseline (PyTorch)": "mlp_baseline",
+    "MLP (Exp4)": "mlp",
 }
 
 
@@ -83,7 +82,7 @@ model_label = st.selectbox(
     "Model used for predictions",
     options=list(MODEL_OPTIONS.keys()),
     index=2,
-    help="Sent as JSON field `model` to `/predict` (lr, rf, hgb, mlp, mlp_baseline).",
+    help="Sent as JSON field `model` to `/predict` (lr, rf, hgb, mlp).",
 )
 model_key = MODEL_OPTIONS[model_label]
 

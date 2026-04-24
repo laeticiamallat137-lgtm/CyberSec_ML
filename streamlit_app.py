@@ -19,7 +19,7 @@ RESULTS_DIR = ROOT / "results"
 
 
 @st.cache_data
-def load_metrics() -> dict:
+def load_metrics(_cache_key: float | None = None) -> dict:
     if not METRICS_JSON.is_file():
         return {}
     with open(METRICS_JSON, encoding="utf-8") as f:
@@ -35,7 +35,8 @@ def main() -> None:
     inject_compact_sidebar_css()
     render_minimal_sidebar_nav()
 
-    data = load_metrics()
+    cache_key = METRICS_JSON.stat().st_mtime if METRICS_JSON.is_file() else None
+    data = load_metrics(cache_key)
     if not data:
         st.error(
             f"Missing `{METRICS_JSON.relative_to(ROOT)}`. "
@@ -73,7 +74,6 @@ def main() -> None:
         rows.append(
             {
                 "Model": m.get("name", ""),
-                "Role": m.get("role", ""),
                 "Macro-F1 ↑": m.get("val_macro_f1"),
                 "Weighted-F1 ↑": m.get("val_weighted_f1"),
                 "Benign FPR ↓": m.get("val_benign_fpr"),
@@ -111,8 +111,9 @@ def main() -> None:
     cms = []
     for m in models:
         mid = m.get("id", "")
-        png = RESULTS_DIR / f"confusion_matrix_{mid}_test.png"
-        cms.append((m.get("name", mid), png, mid))
+        cm_id = m.get("cm_id", mid)
+        png = RESULTS_DIR / f"confusion_matrix_{cm_id}_test.png"
+        cms.append((m.get("name", mid), png, cm_id))
 
     missing = [name for name, p, _ in cms if not p.is_file()]
     if missing:

@@ -39,14 +39,13 @@ PROCESSED = ROOT / "data" / "processed"
 MODELS = ROOT / "models"
 MODEL_FILES = {
     "Logistic Regression": "lr",
-    "Random Forest": "rf",
+    "Random Forest (Best)": "rf",
     "HistGradientBoosting": "hgb",
-    "MLP (PyTorch)": "mlp",
-    "MLP baseline (PyTorch)": "mlp_baseline",
+    "MLP (Exp4)": "mlp",
 }
 SKLEARN_PATHS = {
     "lr": MODELS / "logistic_regression.joblib",
-    "rf": MODELS / "random_forest.joblib",
+    "rf": MODELS / "random_forest_best.joblib",
     "hgb": MODELS / "gradient_boosting.joblib",
 }
 
@@ -75,9 +74,7 @@ def load_sklearn_model(key: str):
 @st.cache_resource
 def load_mlp_model(which: str):
     if which == "mlp":
-        pt, meta = MODELS / "mlp.pt", MODELS / "mlp_meta.joblib"
-    elif which == "mlp_baseline":
-        pt, meta = MODELS / "mlp_baseline.pt", MODELS / "mlp_baseline_meta.joblib"
+        pt, meta = MODELS / "mlp_exp4.pt", MODELS / "mlp_exp4_meta.joblib"
     else:
         return None
     if not pt.is_file() or not meta.is_file():
@@ -86,7 +83,7 @@ def load_mlp_model(which: str):
 
 
 def get_model(key: str):
-    if key in ("mlp", "mlp_baseline"):
+    if key == "mlp":
         return load_mlp_model(key)
     return load_sklearn_model(key)
 

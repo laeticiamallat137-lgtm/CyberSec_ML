@@ -8,7 +8,7 @@ column order as ``feature_cols`` saved during ``preprocess.py``. The service app
 Run from repository root:
   uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
 
-Default checkpoint: env ``IDS_MODEL=lr|rf|hgb|mlp|mlp_baseline`` (default: hgb). Each request can
+Default checkpoint: env ``IDS_MODEL=lr|rf|hgb|mlp`` (default: hgb). Each request can
 override with JSON field ``\"model\"`` or ``\"model_key\"``.
 
 Requires preprocess artifacts: models/scaler.joblib, label_encoder.joblib, feature_cols.joblib
@@ -38,12 +38,12 @@ from train_mlp import load_mlp_wrapper
 MODELS_DIR = ROOT / "models"
 MODEL_FILES = {
     "lr": MODELS_DIR / "logistic_regression.joblib",
-    "rf": MODELS_DIR / "random_forest.joblib",
+    "rf": MODELS_DIR / "random_forest_best.joblib",
     "hgb": MODELS_DIR / "gradient_boosting.joblib",
 }
 
 MAX_BATCH = int(os.environ.get("IDS_MAX_BATCH", "2048"))
-ALLOWED_MODELS = frozenset(MODEL_FILES.keys()) | {"mlp", "mlp_baseline"}
+ALLOWED_MODELS = frozenset(MODEL_FILES.keys()) | {"mlp"}
 
 
 class AppState:
@@ -67,16 +67,10 @@ def _load_sklearn(key: str):
 
 def _load_model(key: str):
     if key == "mlp":
-        pt = MODELS_DIR / "mlp.pt"
-        meta = MODELS_DIR / "mlp_meta.joblib"
+        pt = MODELS_DIR / "mlp_exp4.pt"
+        meta = MODELS_DIR / "mlp_exp4_meta.joblib"
         if not pt.is_file() or not meta.is_file():
             raise FileNotFoundError(f"Missing MLP weights or meta under {MODELS_DIR}")
-        return load_mlp_wrapper(weights_path=str(pt), meta_path=str(meta))
-    if key == "mlp_baseline":
-        pt = MODELS_DIR / "mlp_baseline.pt"
-        meta = MODELS_DIR / "mlp_baseline_meta.joblib"
-        if not pt.is_file() or not meta.is_file():
-            raise FileNotFoundError(f"Missing baseline MLP under {MODELS_DIR}")
         return load_mlp_wrapper(weights_path=str(pt), meta_path=str(meta))
     return _load_sklearn(key)
 
@@ -149,7 +143,7 @@ class PredictRequest(BaseModel):
     )
     model: str | None = Field(
         default=None,
-        description="lr | rf | hgb | mlp | mlp_baseline — overrides server default if set",
+        description="lr | rf | hgb | mlp — overrides server default if set",
         validation_alias=AliasChoices("model", "model_key"),
     )
 
