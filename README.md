@@ -28,15 +28,30 @@ We improved 3 models (Random Forest, HistGradientBoosting, and MLP) through hype
 Improvement details and metrics are documented in:
 - [hgb_evaluation.md](./hgb_evaluation.md)
 - [rf_evaluation.md](./rf_evaluation.md)
+- [mlp_evaluation.md](./mlp_evaluation.md)
 
-## Repository Structure
+## Project Structure
 
-- `src/` - ingestion, preprocessing, training, evaluation, monitoring scripts
-- `api/` - FastAPI inference service
-- `pages/` + `streamlit_app.py` - Streamlit UI for interactive demo
-- `models/` - saved model and preprocessing artifacts
-- `data/processed/` - processed/split datasets and arrays
-- `dashboard/` - presentation metrics summary
+```text
+CyberSec_ML/
+├── api/
+│   └── main.py                 # FastAPI inference and monitoring endpoints
+├── dashboard/
+│   └── metrics_summary.json    # metrics used by the Streamlit dashboard
+├── data/
+│   ├── raw/                    # original dataset files, not required for inference
+│   └── processed/              # processed train/val/test artifacts
+├── models/                     # trained models and preprocessing artifacts
+├── pages/                      # Streamlit multipage demo screens
+├── src/                        # ingestion, preprocessing, training, evaluation scripts
+├── streamlit_app.py            # Streamlit app entry point
+├── nav_sidebar.py              # shared Streamlit navigation/sidebar
+├── requirements.txt            # Python dependencies
+├── Dockerfile                  # container setup for API + Streamlit
+├── hgb_evaluation.md           # HistGradientBoosting evaluation report
+├── rf_evaluation.md            # Random Forest evaluation report
+└── mlp_evaluation.md           # MLP evaluation report
+```
 
 ## Setup
 
@@ -116,4 +131,3 @@ If a requested model file is missing, the API returns an error for that model re
 - Benign False Positive Rate (Benign FPR)
 
 These metrics were chosen because accuracy alone is not reliable for imbalanced intrusion-detection data.
-
