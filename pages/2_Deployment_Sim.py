@@ -60,6 +60,34 @@ def parse_feature_input(text: str) -> list[float]:
     return [float(p) for p in parts]
 
 
+def parse_batch_input(text: str) -> list[list[float]]:
+    """Accept JSON 2D array or newline-separated rows of numeric values."""
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty batch input.")
+    if text.startswith("["):
+        data = json.loads(text)
+        if not isinstance(data, list) or not data:
+            raise ValueError("JSON batch must be a non-empty 2D array.")
+        rows = []
+        for row in data:
+            if not isinstance(row, list):
+                raise ValueError("Each JSON batch item must be an array of numbers.")
+            rows.append([float(x) for x in row])
+        return rows
+    rows = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = re.split(r"[\s,;]+", line.strip().strip(","))
+        parts = [p for p in parts if p]
+        rows.append([float(p) for p in parts])
+    if not rows:
+        raise ValueError("No valid rows found in batch input.")
+    return rows
+
+
 st.set_page_config(page_title="Deployment simulation", layout="wide")
 inject_compact_sidebar_css()
 render_minimal_sidebar_nav()
@@ -135,3 +163,90 @@ if st.button("Predict class", type="primary"):
             st.error(
                 f"Could not reach API at `{base}` (is uvicorn running?). Error: {e}"
             )
+
+st.divider()
+
+st.subheader("Predict batch")
+st.markdown(
+    f"Send multiple samples at once. Provide a **2D array** where each row has exactly "
+    f"**{n_feat}** feature values."
+)
+
+batch_mode = st.radio(
+    "Batch input format",
+    ("JSON 2D array", "One sample per line"),
+    horizontal=True,
+    key="batch_mode",
+)
+batch_placeholder = (
+    "[[0.1, 0.2, ...], [1.4, 2.8, ...]]"
+    if batch_mode == "JSON 2D array"
+    else "0.1, 0.2, ...\n1.4, 2.8, ..."
+)
+batch_text = st.text_area(
+    "Batch feature values",
+    height=140,
+    placeholder=batch_placeholder,
+    help=f"Every row must contain exactly {n_feat} numbers.",
+)
+
+if st.button("Predict batch", key="predict_batch_btn"):
+    if not batch_text.strip():
+        st.warning("Enter batch feature values first.")
+    else:
+        try:
+            batch_rows = parse_batch_input(batch_text)
+        except (ValueError, json.JSONDecodeError) as e:
+            st.error(f"Could not parse batch input: {e}")
+            st.stop()
+        bad_row = next((i for i, row in enumerate(batch_rows) if len(row) != n_feat), None)
+        if bad_row is not None:
+            st.error(
+                f"Row {bad_row}: expected **{n_feat}** numbers, got {len(batch_rows[bad_row])}."
+            )
+            st.stop()
+        try:
+            r = httpx.post(
+                f"{base}/predict/batch",
+                json={"batch": batch_rows, "model": model_key},
+                timeout=180.0,
+            )
+            if r.is_success:
+                out = r.json()
+                st.success(f"Batch processed: **{out.get('count', 0)}** samples.")
+                results = out.get("results", [])
+                if results:
+                    table_rows = [
+                        {
+                            "row": i,
+                            "prediction": item.get("prediction"),
+                            "confidence": item.get("confidence"),
+                        }
+                        for i, item in enumerate(results)
+                    ]
+                    st.dataframe(table_rows, use_container_width=True, hide_index=True)
+                with st.expander("Full batch API response"):
+                    st.json(out)
+            else:
+                st.error(f"HTTP {r.status_code}: {r.text}")
+        except httpx.RequestError as e:
+            st.error(
+                f"Could not reach API at `{base}` (is uvicorn running?). Error: {e}"
+            )
+
+st.divider()
+
+st.subheader("Monitoring snapshot")
+st.caption(
+    "Reads current alert-rate and drift status from the running API monitor state."
+)
+if st.button("Refresh monitor"):
+    try:
+        r = httpx.get(f"{base}/monitor", timeout=60.0)
+        if r.is_success:
+            out = r.json()
+            st.json(out)
+        else:
+            st.error(f"HTTP {r.status_code}: {r.text}")
+    except httpx.RequestError as e:
+        st.error(f"Could not reach API at `{base}` (is uvicorn running?). Error: {e}")

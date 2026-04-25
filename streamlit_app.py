@@ -101,8 +101,7 @@ def main() -> None:
             st.markdown(f"**{k.replace('_', ' ')}:** {v}")
 
     st.markdown(
-        "**Takeaway:** Random Forest and HistGradientBoosting outperform the linear baseline "
-        "on macro-F1 and especially **benign FPR**; compare tables in your written report."
+        "**Takeaway:** Advanced models significantly outperform the baseline. Random Forest and MLP improve detection (higher Macro-F1), while MLP also achieves the lowest false positive rate, making it the best balance between detecting attacks and minimizing false alarms."
     )
 
     # --- Confusion matrices ---

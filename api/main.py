@@ -59,7 +59,7 @@ ALERT_WINDOW = int(os.environ.get("IDS_ALERT_WINDOW", "1000"))
 ALERT_THRESHOLD = float(os.environ.get("IDS_ALERT_THRESHOLD", "0.5"))
 
 DRIFT_WINDOW = int(os.environ.get("IDS_DRIFT_WINDOW", "500"))
-DRIFT_MIN_WINDOW = int(os.environ.get("IDS_DRIFT_MIN_WINDOW", "200"))
+DRIFT_MIN_WINDOW = int(os.environ.get("IDS_DRIFT_MIN_WINDOW", "5"))
 DRIFT_THRESHOLD = float(os.environ.get("IDS_DRIFT_THRESHOLD", "0.05"))
 DRIFT_LABEL_DELTA = float(os.environ.get("IDS_DRIFT_LABEL_DELTA", "0.05"))
 DRIFT_TOP_FEATURES = int(os.environ.get("IDS_DRIFT_TOP_FEATURES", "10"))
