@@ -20,11 +20,23 @@ env/
 *.pptx
 
 # training outputs
+data/raw/
+data/processed/X_train.joblib
+data/processed/y_train.joblib
+data/processed/X_val.joblib
+data/processed/y_val.joblib
+data/processed/dataset.parquet
+data/processed/train.parquet
+data/processed/val.parquet
+data/processed/test.parquet
 runs/
 outputs/
 checkpoints/
 wandb/
 mlruns/
+
+# compressed local artifacts
+*.rar
 
 # OS files
 .DS_Store

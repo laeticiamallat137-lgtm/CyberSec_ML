@@ -53,9 +53,7 @@ using the same refreshed pipeline artifacts and the same train/val/test split.
 | Old Baseline HGB | 462.8 |
 | New Improved HGB | 699.7 |
 
-## Saved Artifacts
-- Old baseline model: `C:/Users/MIDs/Desktop/CyberSec_ML/CyberSec_ML/models/gradient_boosting_baseline.joblib`
-- New improved model (production default): `C:/Users/MIDs/Desktop/CyberSec_ML/CyberSec_ML/models/gradient_boosting.joblib`
+
 
 ## Notes
 - This report compares models trained on the same refreshed data pipeline output.
