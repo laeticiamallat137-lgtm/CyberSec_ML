@@ -59,6 +59,29 @@ CyberSec_ML/
 pip install -r requirements.txt
 ```
 
+## Run with Docker
+
+Before building the image, make sure the required model artifacts are present in `models/`.
+See [Download Models Into `models/`](#download-models-into-models) for the required filenames.
+
+Build the Docker image:
+
+```bash
+docker build -t cybersec-ml .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 8000:8000 -p 8501:8501 cybersec-ml
+```
+
+Open:
+- Streamlit demo: http://127.0.0.1:8501
+- Swagger UI: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/health
+- Monitor: http://127.0.0.1:8000/monitor
+
 ## Pipeline Commands
 
 ```bash
